@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/creditapp
+    username: user
+    password: pass
+  jpa:
+    hibernate:
+      ddl-auto: create
+twilio:
+  id: ACee9c95228789312211220528fe309294
+  password: 6436f002060294faafe27e2518796f7f

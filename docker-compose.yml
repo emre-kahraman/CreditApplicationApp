@@ -1,0 +1,29 @@
+version: '3.1'
+services:
+  postgres:
+    image: postgres
+    container_name: postgres
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: creditapp
+    ports:
+      - 5432:5432
+  backend:
+    build: ./
+    image: creditbackend
+    container_name: creditbackend
+    environment:
+      spring_datasource_url: jdbc:postgresql://postgres:5432/creditapp
+    depends_on:
+      - postgres
+    ports:
+      - 8080:8080
+  client:
+    build: ./client
+    image: client
+    container_name: client
+    ports:
+      - 4200:4200
+    depends_on:
+      - backend
