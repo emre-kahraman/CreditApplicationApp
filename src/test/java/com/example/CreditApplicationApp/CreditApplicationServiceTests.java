@@ -5,6 +5,7 @@ import com.example.CreditApplicationApp.dto.CreditDTO;
 import com.example.CreditApplicationApp.dto.CreditResult;
 import com.example.CreditApplicationApp.entity.CreditApplication;
 import com.example.CreditApplicationApp.entity.CreditApplicationResult;
+import com.example.CreditApplicationApp.exception.CreditApplicationNotFound;
 import com.example.CreditApplicationApp.handler.CreditApplicationHandler;
 import com.example.CreditApplicationApp.mapper.CreditDTOMapper;
 import com.example.CreditApplicationApp.repository.CreditApplicationRepository;
@@ -19,8 +20,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
@@ -102,38 +105,12 @@ public class CreditApplicationServiceTests {
                 .creditApplicationResult(creditApplicationResult)
                 .build();
 
-        when(creditApplicationRepository.getByPersonalIdentificationNumberAndBirthDate(any(), any())).thenReturn(creditApplication);
+        when(creditApplicationRepository.getByPersonalIdentificationNumberAndBirthDate(any(), any())).thenReturn(Optional.of(creditApplication));
         when(creditDTOMapper.convert(creditApplicationResult)).thenReturn(creditDTO);
 
         CreditDTO creditDTOResult = creditApplicationService.getCreditApplication(personalIdentificationNumber, birthDate);
 
         assertEquals(creditDTOResult.getCreditResult(), CreditResult.APPROVED);
         assertEquals(creditDTOResult.getCreditLimit(), BigDecimal.valueOf(10000));
-    }
-
-    @Test
-    public void itShouldReturnNullIfPersonalIdentificationNumberOrBirthDateDoNotMatch(){
-        String personalIdentificationNumber = "1234";
-        LocalDate birthDate = LocalDate.now();
-        CreditApplicationResult creditApplicationResult = CreditApplicationResult.builder()
-                .creditResult(CreditResult.APPROVED)
-                .creditLimit(BigDecimal.valueOf(10000))
-                .build();
-        CreditApplication creditApplication = CreditApplication.builder()
-                .id(1l)
-                .personalIdentificationNumber("123")
-                .fullName("test")
-                .monthlyIncome(BigDecimal.valueOf(3000))
-                .phone("123")
-                .birthDate(LocalDate.now())
-                .deposit(BigDecimal.valueOf(200))
-                .creditApplicationResult(creditApplicationResult)
-                .build();
-
-        when(creditApplicationRepository.getByPersonalIdentificationNumberAndBirthDate(any(), any())).thenReturn(null);
-
-        CreditDTO creditDTOResult = creditApplicationService.getCreditApplication(personalIdentificationNumber, birthDate);
-
-        assertEquals(creditDTOResult, null);
     }
 }

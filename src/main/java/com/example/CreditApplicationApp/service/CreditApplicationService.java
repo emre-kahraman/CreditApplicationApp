@@ -6,13 +6,16 @@ import com.example.CreditApplicationApp.dto.SendSmsRequest;
 import com.example.CreditApplicationApp.entity.CreditApplication;
 import com.example.CreditApplicationApp.entity.CreditApplicationResult;
 import com.example.CreditApplicationApp.entity.Customer;
+import com.example.CreditApplicationApp.exception.CreditApplicationNotFound;
 import com.example.CreditApplicationApp.handler.*;
 import com.example.CreditApplicationApp.mapper.CreditDTOMapper;
 import com.example.CreditApplicationApp.repository.CreditApplicationRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -70,9 +73,9 @@ public class CreditApplicationService {
 
     public CreditDTO getCreditApplication(String personalIdentificationNumber, LocalDate birthDate) {
         log.info("CreditApplicationInquiry Request with personalIdentificationNumber {} birthDate {}",personalIdentificationNumber, birthDate);
-        CreditApplication creditApplication = creditApplicationRepository.getByPersonalIdentificationNumberAndBirthDate(personalIdentificationNumber, birthDate);
-        if(creditApplication == null)
-            return null;
+        CreditApplication creditApplication = creditApplicationRepository.getByPersonalIdentificationNumberAndBirthDate(personalIdentificationNumber, birthDate)
+                .orElseThrow(() -> new CreditApplicationNotFound("Credit Application Not Found with personalIdentificationNumber: "
+                +personalIdentificationNumber+" birthDate: "+birthDate));
         CreditApplicationResult creditApplicationResult = creditApplication.getCreditApplicationResult();
         log.info("CreditApplicationResult {} fetched from database with personalIdentificationNumber {} birthDate {}"
                 , creditApplicationResult
